@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPS Location Tracker</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        /* Set map height */
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>GPS Location Tracker</h1>
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- JavaScript to Fetch Data and Display on Map -->
+    <script>
+        // Initialize the map and set its view to a default location and zoom level
+        var map = L.map('map').setView([0, 0], 13); // Default to (0, 0) before GPS data arrives
+
+        // Add OpenStreetMap tiles to the map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Create a marker for the GPS location
+        var marker = L.marker([0, 0]).addTo(map);
+
+        // Function to fetch GPS data from server
+        async function fetchGPSData() {
+            try {
+                const response = await fetch('http://localhost:3000/api/track'); // Replace with your API endpoint
+                const data = await response.json();
+                const { latitude, longitude } = data;
+
+                // Update map view to the current GPS location
+                map.setView([latitude, longitude], 13);
+                marker.setLatLng([latitude, longitude]);
+
+                console.log(`Current Location: Latitude: ${latitude}, Longitude: ${longitude}`);
+            } catch (error) {
+                console.error('Error fetching GPS data:', error);
+            }
+        }
+
+        // Call fetchGPSData every 5 seconds to update the location in real-time
+        setInterval(fetchGPSData, 5000);
+
+        // Fetch initial location
+        fetchGPSData();
+    </script>
+
+</body>
+</html>
